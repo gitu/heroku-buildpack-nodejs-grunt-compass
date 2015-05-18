@@ -141,7 +141,8 @@ install_compass() {
 	  export GEM_HOME=$cache_dir/ruby/.gem/ruby/1.9.1
 	fi
 	
-	export PATH=$GEM_HOME/bin:$PATH
+	PATH=$GEM_HOME/bin:$PATH
+	echo "added to path: $GEM_HOME/bin"
 	if test -d $cache_dir/ruby/.gem; then
 	  info "Restoring ruby gems directory from cache"
 	  cp -r $cache_dir/ruby/.gem $build_dir
