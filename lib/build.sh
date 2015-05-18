@@ -134,7 +134,7 @@ install_node() {
 
 install_compass() {
 	# install compass
-	status "Installing Compass"
+	info "Installing Compass"
 	if [ "$STACK" == "cedar-14" ]; then
 	  export GEM_HOME=$cache_dir/ruby/.gem/ruby/2.2.0
 	else
@@ -143,7 +143,7 @@ install_compass() {
 	
 	PATH="$GEM_HOME/bin:$PATH"
 	if test -d $cache_dir/ruby/.gem; then
-	  status "Restoring ruby gems directory from cache"
+	  info "Restoring ruby gems directory from cache"
 	  cp -r $cache_dir/ruby/.gem $build_dir
 	  HOME=$build_dir gem update compass --user-install --no-rdoc --no-ri
 	else
@@ -156,7 +156,7 @@ install_compass() {
 
 	# If app has a gems directory, cache it.
 	if test -d $build_dir/.gem; then
-	  status "Caching ruby gems directory for future builds"
+	  info "Caching ruby gems directory for future builds"
 	  cp -r $build_dir/.gem $cache_dir/ruby
 	fi
 }
