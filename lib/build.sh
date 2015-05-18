@@ -135,11 +135,7 @@ install_node() {
 install_compass() {
 	# install compass
 	info "Installing Compass"
-	if [ "$STACK" == "cedar-14" ]; then
-	  export GEM_HOME=$build_dir/.gem/ruby/2.2.0
-	else
-	  export GEM_HOME=$build_dir/.gem/ruby/1.9.1
-	fi
+	export GEM_HOME=$build_dir/.gem/ruby/2.2.0
 	
 	export PATH=$GEM_HOME/bin:$PATH
 	echo "added to path: $GEM_HOME/bin"
@@ -240,7 +236,7 @@ ensure_procfile() {
 write_profile() {
   info "Creating runtime environment"
   mkdir -p $build_dir/.profile.d
-  echo "export PATH=\"\$HOME/.heroku/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\$PATH\"" > $build_dir/.profile.d/nodejs.sh
+  echo "export PATH=\"\$HOME/.gem/ruby/2.2.0/bin:\$HOME/.heroku/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\$PATH\"" > $build_dir/.profile.d/nodejs.sh
   echo "export NODE_HOME=\"\$HOME/.heroku/node\"" >> $build_dir/.profile.d/nodejs.sh
   cat $bp_dir/lib/concurrency.sh >> $build_dir/.profile.d/nodejs.sh
 }
