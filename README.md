@@ -1,114 +1,223 @@
-Heroku buildpack: Node.js with grunt support
-============================================
+# Heroku Buildpack for Node.js
 
-Supported Grunt versions: 0.3 and 0.4.
-See the Grunt [migration guide](https://github.com/gruntjs/grunt/wiki/Upgrading-from-0.3-to-0.4) if you are upgrading from 0.3.
+![heroku-buildpack-featuerd](https://cloud.githubusercontent.com/assets/51578/6953435/52e1af5c-d897-11e4-8712-35fbd4d471b1.png)
 
-This is a fork of [Heroku's official Node.js buildpack](https://github.com/heroku/heroku-buildpack-nodejs) with added [Grunt](http://gruntjs.com/) support.
-Using this buildpack you do not need to commit the results of your Grunt tasks (e.g. minification and concatination of files), keeping your repository clean.
-
-After all the default Node.js and npm build tasks have finished, the buildpack checks if a Gruntfile (`Gruntfile.js`, `Gruntfile.coffee`or `grunt.js`) exists and executes the `heroku` task by running `grunt heroku`. For details about grunt and how to define tasks, check out the [offical documentation](http://gruntjs.com/getting-started). You must add grunt to the npm dependencies in your `package.json` file.
-If no Gruntfile exists, the buildpacks simply skips the grunt step and executes like the standard Node.js buildpack.
+This is the official [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for Node.js apps. If you fork this repository, please **update this README** to explain what your fork does and why it's special.
 
 
-How it Works
-------------
+## How it Works
 
-Here's an overview of what this buildpack does:
+Apps are built via one of four paths:
 
-- Uses the [semver.io](https://semver.io) webservice to find the latest version of node that satisfies the [engines.node semver range](https://npmjs.org/doc/json.html#engines) in your package.json.
-- Allows any recent version of node to be used, including [pre-release versions](https://semver.io/node.json).
-- Uses an [S3 caching proxy](https://github.com/heroku/s3pository#readme) of nodejs.org for faster downloads of the node binary.
-- Discourages use of dangerous semver ranges like `*` and `>0.10`.
-- Uses the version of `npm` that comes bundled with `node`.
-- Puts `node` and `npm` on the `PATH` so they can be executed with [heroku run](https://devcenter.heroku.com/articles/one-off-dynos#an-example-one-off-dyno).
-- Caches the `node_modules` directory across builds for fast deploys.
-- Doesn't use the cache if `node_modules` is checked into version control.
-- Runs `npm rebuild` if `node_modules` is checked into version control.
-- Always runs `npm install` to ensure [npm script hooks](https://npmjs.org/doc/misc/npm-scripts.html) are executed.
-- Always runs `npm prune` after restoring cached modules to ensure cleanup of unused dependencies.
-- Runs `grunt` if a Gruntfile (`Gruntfile.js`, `Gruntfile.coffee`or `grunt.js`) is found.
-- Doesn't install grunt-cli every time.
-- Installs `compass`, caching it for future use.
+1. A regular `npm install` (first build; default scenario)
+2. Copy existing `node_modules` from cache, then `npm prune`, then `npm install` (subsequent builds)
+3. Skip dependencies (if package.json doesn't exist but server.js does)
+4. Skip cache, run `npm rebuild` before `npm install` (`node_modules` are checked into source control)
 
-For more technical details, see the [heavily-commented compile script](https://github.com/stephanmelzer/heroku-buildpack-nodejs-grunt-compass/blob/master/bin/compile).
+You should only use #3 (omitting package.json) for quick tests or experiments.
 
-Usage
------
+You should never use #4 - it's included for backwards-compatibility and will generate warnings.
+**Checking in `node_modules` is an antipattern.**
+For more information, see [the npm docs](https://docs.npmjs.com/misc/faq#should-i-check-my-node_modules-folder-into-git-)
 
-Create a new app with this buildpack:
+For technical details, check out the [heavily-commented compile script](https://github.com/heroku/heroku-buildpack-nodejs/blob/master/bin/compile).
 
-    heroku create myapp --buildpack heroku config:add BUILDPACK_URL=https://github.com/stephanmelzer/heroku-buildpack-nodejs-grunt-compass.git
-
-Or add this buildpack to your current app:
-
-    heroku config:add BUILDPACK_URL=https://github.com/stephanmelzer/heroku-buildpack-nodejs-grunt-compass.git
-
-Set the `NODE_ENV` environment variable (e.g. `development` or `production`):
-
-    heroku config:set NODE_ENV=production
-
-Create your Node.js app and add a Gruntfile named  `Gruntfile.js` (or `Gruntfile.coffee` if you want to use CoffeeScript, or `grunt.js` if you are using Grunt 0.3) with a `heroku` task:
-
-    grunt.registerTask('heroku:development', 'clean less mincss');
-
-or
-
-    grunt.registerTask('heroku:production', 'clean less mincss uglify');
-
-Don't forget to add grunt to your dependencies in `package.json`. If your grunt tasks depend on other pre-defined tasks make sure to add these dependencies as well:
-
-    "dependencies": {
-        ...
-        "grunt": "*",
-        "grunt-contrib": "*",
-        "less": "*"
-    }
-
-Push to heroku
-
-    git push heroku master
-    ...
-    ----> Fetching custom git buildpack... done
-    -----> Node.js app detected
-    -----> Requested node range:  0.10.x
-    -----> Resolved node version: 0.10.25
-    -----> Downloading and installing node
-    -----> Found Gruntfile
-    -----> Augmenting package.json with grunt and grunt-cli
-    -----> Restoring node_modules directory from cache
-    -----> Pruning cached dependencies not specified in package.json
-           npm WARN package.json mealgen@0.0.0 No repository field.
-    -----> Installing dependencies
-           npm WARN package.json mealgen@0.0.0 No repository field.
-    -----> Caching node_modules directory for future builds
-    -----> Cleaning up node-gyp and npm artifacts
-    -----> Installing Compass
-    -----> Restoring ruby gems directory from cache
-    Updating installed gems
-    Nothing to update
-    -----> Caching ruby gems directory for future builds
-    -----> Building runtime environment
-    -----> Running grunt heroku: task
-
-Debugging
----------
-
-npm can be run with a verbose flag to help debugging if something fails when installing the dependencies.
-
-* if the `VERBOSE` environment variable is set, npm is always run with verbose logging.
-* if `BUILDPACK_RETRY_VERBOSE` is set, npm is relaunched in verbose mode if npm failed.
-
-Thanks to [mackwic](https://github.com/mackwic) for these extensions.
-
-Further Information
--------------------
+## Documentation
 
 For more information about using Node.js and buildpacks on Heroku, see these Dev Center articles:
 
 - [Heroku Node.js Support](https://devcenter.heroku.com/articles/nodejs-support)
 - [Getting Started with Node.js on Heroku](https://devcenter.heroku.com/articles/nodejs)
+- [10 Habits of a Happy Node Hacker](https://blog.heroku.com/archives/2014/3/11/node-habits)
 - [Buildpacks](https://devcenter.heroku.com/articles/buildpacks)
 - [Buildpack API](https://devcenter.heroku.com/articles/buildpack-api)
-- [Grunt: a task-based command line build tool for JavaScript projects](http://gruntjs.com/)
-- [Compass: SCSS with batteries](http://compass-style.org/)
+
+
+## Legacy Compatibility
+
+For most Node.js apps this buildpack should work just fine.
+If, however, you're unable to deploy using this new version of the buildpack, you can get your app working again by locking it to the previous version:
+
+```
+heroku buildpack:set BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-nodejs#v63 -a my-app
+git commit -am "empty" --allow-empty
+git push heroku master
+```
+
+Then please open a support ticket at [help.heroku.com](https://help.heroku.com/) so we can diagnose and get your app running on the default buildpack.
+
+## Options
+
+### Specify a node version
+
+Set engines.node in package.json to the semver range
+(or specific version) of node you'd like to use.
+(It's a good idea to make this the same version you use during development)
+
+```json
+"engines": {
+  "node": "0.11.x"
+}
+```
+
+```json
+"engines": {
+  "node": "0.10.33"
+}
+```
+
+Default: the
+[latest stable version.](http://semver.io/node)
+
+### Specify an npm version
+
+Set engines.npm in package.json to the semver range
+(or specific version) of npm you'd like to use.
+(It's a good idea to make this the same version you use during development)
+
+Since 'npm 2' shipped several major bugfixes, you might try:
+
+```json
+"engines": {
+  "npm": "2.x"
+}
+```
+
+```json
+"engines": {
+  "npm": "^2.1.0"
+}
+```
+
+Default: the version of npm bundled with your node install (varies).
+
+### Enable or disable node_modules caching
+
+For a 'clean' build without using any cached node modules:
+
+```shell
+heroku config:set NODE_MODULES_CACHE=false
+git commit -am 'rebuild' --allow-empty
+git push heroku master
+heroku config:unset NODE_MODULES_CACHE
+```
+
+Caching node_modules between builds dramatically speeds up build times.
+However, `npm install` doesn't automatically update already-installed modules
+as long as they fall within acceptable semver ranges,
+which can lead to outdated modules.
+
+Default: `NODE_MODULES_CACHE` defaults to true
+
+### Enable or disable devDependencies installation
+
+During local development, `npm install` installs all dependencies
+and all devDependencies (test frameworks, build tools, etc).
+This is usually something you want to avoid in production, so
+npm has a 'production' config that can be set through the environment:
+
+To install *dependencies only:*
+
+```shell
+heroku config:set NPM_CONFIG_PRODUCTION=true
+```
+
+To install *dependencies and devDependencies:*
+
+```shell
+heroku config:set NPM_CONFIG_PRODUCTION=false
+```
+
+Default: `NPM_CONFIG_PRODUCTION` defaults to true on Heroku
+
+### Configure npm with .npmrc
+
+Sometimes, a project needs custom npm behavior to set up proxies,
+use a different registry, etc. For such behavior,
+just include an `.npmrc` file in the root of your project:
+
+```
+# .npmrc
+registry = 'https://custom-registry.com/'
+```
+
+### Reasonable defaults for concurrency
+
+This buildpack adds two environment variables: `WEB_MEMORY` and `WEB_CONCURRENCY`.
+You can set either of them, but if unset the buildpack will fill them with reasonable defaults.
+
+- `WEB_MEMORY`: expected memory use by each node process (in MB, default: 512)
+- `WEB_CONCURRENCY`: recommended number of processes to Cluster based on the current environment
+
+Clustering is not done automatically; concurrency should be part of the app,
+usually via a library like [throng](https://github.com/hunterloftis/throng).
+Apps without any clustering mechanism will remain unaffected by these variables.
+
+This behavior allows your app to automatically take advantage of larger containers.
+The default settings will cluster
+1 process on a 1X dyno, 2 processes on a 2X dyno, and 12 processes on a PX dyno.
+
+For example, when your app starts:
+
+```
+app[web.1]: Detected 1024 MB available memory, 512 MB limit per process (WEB_MEMORY)
+app[web.1]: Recommending WEB_CONCURRENCY=2
+app[web.1]:
+app[web.1]: > example-concurrency@1.0.0 start /app
+app[web.1]: > node server.js
+app[web.1]: Listening on 51118
+app[web.1]: Listening on 51118
+```
+
+Notice that on a 2X dyno, the
+[example concurrency app](https://github.com/heroku-examples/node-concurrency)
+listens on two processes concurrently.
+
+### Chain Node with multiple buildpacks
+
+This buildpack automatically exports node, npm, and any node_modules binaries
+into the `$PATH` for easy use in subsequent buildpacks.
+
+## Feedback
+
+Having trouble? Dig it? Feature request?
+
+- [help.heroku.com](https://help.heroku.com/)
+- [@hunterloftis](http://twitter.com/hunterloftis)
+- [github issues](https://github.com/heroku/heroku-buildpack-nodejs/issues)
+
+## Hacking
+
+To make changes to this buildpack, fork it on Github. Push up changes to your fork, then create a new Heroku app to test it, or configure an existing app to use your buildpack:
+
+```
+# Create a new Heroku app that uses your buildpack
+heroku create --buildpack <your-github-url>
+
+# Configure an existing Heroku app to use your buildpack
+heroku buildpacks:set <your-github-url>
+
+# You can also use a git branch!
+heroku buildpacks:set <your-github-url>#your-branch
+```
+
+## Testing
+
+The buildpack tests use [Docker](https://www.docker.com/) to simulate
+Heroku's Cedar and Cedar-14 containers.
+
+To run the test suite:
+
+```
+make test
+```
+
+Or to just test in cedar or cedar-14:
+
+```
+make test-cedar-10
+make test-cedar-14
+```
+
+The tests are run via the vendored [shunit2](http://shunit2.googlecode.com/svn/trunk/source/2.1/doc/shunit2.html)
+test framework.
