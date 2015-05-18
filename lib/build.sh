@@ -136,13 +136,14 @@ install_compass() {
 	# install compass
 	info "Installing Compass"
 	if [ "$STACK" == "cedar-14" ]; then
-	  export GEM_HOME=$cache_dir/ruby/.gem/ruby/2.2.0
+	  export GEM_HOME=$heroku_dir/ruby/.gem/ruby/2.2.0
 	else
-	  export GEM_HOME=$cache_dir/ruby/.gem/ruby/1.9.1
+	  export GEM_HOME=$heroku_dir/ruby/.gem/ruby/1.9.1
 	fi
 	
-	export PATH=$GEM_HOME/bin:$PATH
+	PATH=$GEM_HOME/bin:$PATH
 	echo "added to path: $GEM_HOME/bin"
+	echo "build $build_dir - heroku $heroku_dir - cache $cache_dir"
 	if test -d $cache_dir/ruby/.gem; then
 	  info "Restoring ruby gems directory from cache"
 	  cp -r $cache_dir/ruby/.gem $build_dir
