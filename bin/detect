@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # bin/detect <build-dir>
 
-if [ -f $1/$BUILD_NODE_LOCATION/package.json ]; then
+if [ -f $1/$NPM_TARGET_DIR/package.json ]; then
   echo "Node.js" && exit 0
-elif [ -f $1/$BUILD_NODE_LOCATION/server.js ]; then
+elif [ -f $1/$NPM_TARGET_DIR/server.js ]; then
   echo "Node.js" && exit 0
 else
   echo "ls $1"
   ls $1
-  echo "ls $1/$BUILD_NODE_LOCATION"
-  ls $1/$BUILD_NODE_LOCATION
+  echo "ls $1/$NPM_TARGET_DIR"
+  ls $1/$NPM_TARGET_DIR
   echo "no" && exit 0
 fi

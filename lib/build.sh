@@ -198,7 +198,7 @@ install_npm() {
 }
 
 function build_dependencies() {
-
+  local current_dir=$(pwd)
   if [ "$modules_source" == "" ]; then
     info "Skipping dependencies (no source for node_modules)"
 
@@ -207,12 +207,12 @@ function build_dependencies() {
     npm rebuild 2>&1 | indent
     info "Installing any new modules"
     npm install --unsafe-perm --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
-
   else
     restore_cache
     info "Installing node modules"
     npm install --unsafe-perm --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
   fi
+  info "in dir $current_dir"
 }
 
 ensure_procfile() {
