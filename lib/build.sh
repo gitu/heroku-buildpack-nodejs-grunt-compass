@@ -30,7 +30,7 @@ get_start_method() {
   local build_dir=$1
   if test -f $build_dir/Procfile; then
     echo "Procfile"
-  elif [[ $(read_json "$build_dir/package.json" ".scripts.start") != "" ]]; then
+  elif [[ $(read_json "$build_dir/$BUILD_NODE_LOCATION/package.json" ".scripts.start") != "" ]]; then
     echo "npm start"
   elif test -f $build_dir/server.js; then
     echo "server.js"
@@ -41,11 +41,11 @@ get_start_method() {
 
 get_modules_source() {
   local build_dir=$1
-  if test -d $build_dir/node_modules; then
+  if test -d $build_dir/$BUILD_NODE_LOCATION/node_modules; then
     echo "prebuilt"
-  elif test -f $build_dir/npm-shrinkwrap.json; then
+  elif test -f $build_dir/$BUILD_NODE_LOCATION/npm-shrinkwrap.json; then
     echo "npm-shrinkwrap.json"
-  elif test -f $build_dir/package.json; then
+  elif test -f $build_dir/$BUILD_NODE_LOCATION/package.json; then
     echo "package.json"
   else
     echo ""
@@ -74,10 +74,10 @@ get_modules_cached() {
 
 read_current_state() {
   info "package.json..."
-  assert_json "$build_dir/package.json"
-  iojs_engine=$(read_json "$build_dir/package.json" ".engines.iojs")
-  node_engine=$(read_json "$build_dir/package.json" ".engines.node")
-  npm_engine=$(read_json "$build_dir/package.json" ".engines.npm")
+  assert_json "$build_dir/$BUILD_NODE_LOCATION/package.json"
+  iojs_engine=$(read_json "$build_dir/$BUILD_NODE_LOCATION/package.json" ".engines.iojs")
+  node_engine=$(read_json "$build_dir/$BUILD_NODE_LOCATION/package.json" ".engines.node")
+  npm_engine=$(read_json "$build_dir/$BUILD_NODE_LOCATION/package.json" ".engines.npm")
 
   info "build directory..."
   start_method=$(get_start_method "$build_dir")
@@ -206,12 +206,12 @@ function build_dependencies() {
     info "Rebuilding any native modules for this architecture"
     npm rebuild 2>&1 | indent
     info "Installing any new modules"
-    npm install --unsafe-perm --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
+    cd $BUILD_NODE_LOCATION && npm install --unsafe-perm --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
 
   else
     restore_cache
     info "Installing node modules"
-    npm install --unsafe-perm --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
+    cd $BUILD_NODE_LOCATION && npm install --unsafe-perm --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
   fi
 }
 
