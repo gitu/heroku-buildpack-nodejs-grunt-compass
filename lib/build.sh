@@ -139,13 +139,12 @@ install_compass() {
 	export GEM_HOME=$build_dir/.gem/ruby/2.2.0
 	
 	export PATH=$GEM_HOME/bin:$PATH
-	echo "added to path: $GEM_HOME/bin"
 	if test -d $cache_dir/ruby/.gem; then
 	  info "Restoring ruby gems directory from cache"
 	  cp -r $cache_dir/ruby/.gem $build_dir
-	  HOME=$build_dir gem update compass --user-install --no-rdoc --no-ri
+	  HOME=$build_dir gem update compass --user-install --no-rdoc --no-ri | indent
 	else
-	  HOME=$build_dir gem install compass --user-install --no-rdoc --no-ri
+	  HOME=$build_dir gem install compass --user-install --no-rdoc --no-ri | indent
 	fi
 	
 	# cache ruby gems compass

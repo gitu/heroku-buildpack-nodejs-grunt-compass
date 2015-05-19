@@ -6,5 +6,9 @@ if [ -f $1/$BUILD_NODE_LOCATION/package.json ]; then
 elif [ -f $1/$BUILD_NODE_LOCATION/server.js ]; then
   echo "Node.js" && exit 0
 else
+  echo "ls $1"
+  ls $1
+  echo "ls $1/$BUILD_NODE_LOCATION"
+  ls $1/$BUILD_NODE_LOCATION
   echo "no" && exit 0
 fi
