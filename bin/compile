@@ -20,7 +20,7 @@ heroku_dir=$build_dir/.heroku
 mkdir -p $heroku_dir/node
 warnings=$(mktemp)
 
-src_dir=$build_dir/$NPM_TARGET_DIR/
+src_dir=$build_dir/$NPM_CONFIG_TARGET_DIR/
 
 echo "loading dependencies"
 

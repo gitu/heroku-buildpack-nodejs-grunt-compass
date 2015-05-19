@@ -107,6 +107,7 @@ show_current_state() {
   info "node_modules source: ${modules_source:-none}"
   info "node_modules cached: $modules_cached"
   info "node build path:     $BUILD_NODE_LOCATION"
+  info "node build path:     $NPM_CONFIG_TARGET_DIR"
   echo ""
 
   printenv | grep ^NPM_CONFIG_ | indent
