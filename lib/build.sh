@@ -201,7 +201,6 @@ function build_dependencies() {
   local current_dir=$(pwd)
   if [ "$modules_source" == "" ]; then
     info "Skipping dependencies (no source for node_modules)"
-
   elif [ "$modules_source" == "prebuilt" ]; then
     info "Rebuilding any native modules for this architecture"
     npm rebuild 2>&1 | indent
@@ -212,6 +211,7 @@ function build_dependencies() {
     info "Installing node modules"
     npm install --unsafe-perm --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
   fi
+  info "$src_dir"
   info "in dir $current_dir"
 }
 
