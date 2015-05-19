@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 # bin/detect <build-dir>
 
+build_dir=$1
+cache_dir=$2
+env_dir=$3
+bp_dir=$(cd $(dirname $0); cd ..; pwd)
+source $bp_dir/lib/common.sh
+
 if [ -f $1/$NPM_CONFIG_TARGET_DIR/package.json ]; then
   echo "Node.js" && exit 0
 elif [ -f $1/$NPM_CONFIG_TARGET_DIR/server.js ]; then
   echo "Node.js" && exit 0
 else
-  echo "ls $1"
-  ls $1
-  echo "ls $1/$NPM_CONFIG_TARGET_DIR"
-  ls $1/$NPM_CONFIG_TARGET_DIR
+  echo "bp dir: $bp_dir"
+  echo "env dir: $env_dir"
   echo "no" && exit 0
 fi
