@@ -206,12 +206,12 @@ function build_dependencies() {
     info "Rebuilding any native modules for this architecture"
     npm rebuild 2>&1 | indent
     info "Installing any new modules"
-    cd $BUILD_NODE_LOCATION && npm install --unsafe-perm --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
+    npm install --unsafe-perm --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
 
   else
     restore_cache
     info "Installing node modules"
-    cd $BUILD_NODE_LOCATION && npm install --unsafe-perm --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
+    npm install --unsafe-perm --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
   fi
 }
 

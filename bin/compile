@@ -55,7 +55,7 @@ install_compass
 ####### Build the project's dependencies
 
 head "Building dependencies"
-cd $build_dir
+cd $build_dir/$BUILD_NODE_LOCATION
 build_dependencies
 
 ####### Create a Procfile if possible
