@@ -8,6 +8,9 @@ set -o pipefail   # don't ignore exit codes when piping output
 set -o posix      # more strict failures in subshells
 # set -x          # enable debugging
 
+
+echo "starting compile"
+
 # Configure directories
 build_dir=$1
 cache_dir=$2
@@ -17,7 +20,7 @@ heroku_dir=$build_dir/.heroku
 mkdir -p $heroku_dir/node
 warnings=$(mktemp)
 
-src_dir="$build_dir/$BUILD_NODE_LOCATION"
+src_dir=$build_dir
 
 echo "loading dependencies"
 
@@ -59,8 +62,6 @@ install_npm
 install_compass
 
 ####### Build the project's dependencies
-
-
 
 head "Building dependencies"
 cd $src_dir
